@@ -69,7 +69,6 @@ const landingPage = document.getElementById('landingPage');
 const slideshowPage = document.getElementById('slideshowPage');
 const videoPage = document.getElementById('videoPage');
 const finalPhotoPage = document.getElementById('finalPhotoPage');
-const continueBtn = document.getElementById('continueBtn');
 const slideContainer = document.getElementById('slideContainer');
 const backgroundMusic = document.getElementById('backgroundMusic');
 const finalVideo = document.getElementById('finalVideo');
@@ -84,9 +83,6 @@ function init() {
     generateSlides();
     createFloatingHearts();
 
-    // Event Listeners
-    continueBtn.addEventListener('click', startExperience); // Keep button as backup
-
     // Music event listeners
     backgroundMusic.addEventListener('ended', onMusicEnded);
     backgroundMusic.addEventListener('timeupdate', updateProgress);
@@ -97,7 +93,8 @@ function init() {
     // Video event listener
     finalVideo.addEventListener('ended', onVideoEnded);
 
-    // Start playing music immediately when page loads
+    // Reset audio to beginning and start playing
+    backgroundMusic.currentTime = 0;
     backgroundMusic.play().catch(err => {
         console.log('Audio autoplay prevented:', err);
         // Note: Some browsers block autoplay. User may need to interact with page first.
