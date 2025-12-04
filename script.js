@@ -95,15 +95,30 @@ function init() {
 
     // Reset audio to beginning and start playing
     backgroundMusic.currentTime = 0;
-    backgroundMusic.play().catch(err => {
-        console.log('Audio autoplay prevented:', err);
-        // Note: Some browsers block autoplay. User may need to interact with page first.
-    });
+
+    // Try to play audio
+    const playPromise = backgroundMusic.play();
+
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            console.log('Audio started successfully');
+        }).catch(err => {
+            console.log('Audio autoplay prevented, waiting for user interaction:', err);
+            // Add click listener to start on any click
+            document.body.addEventListener('click', function startAudio() {
+                backgroundMusic.currentTime = 0;
+                backgroundMusic.play();
+                document.body.removeEventListener('click', startAudio);
+            }, { once: true });
+        });
+    }
 }
 
 // Generate slide HTML
 function generateSlides() {
     slideContainer.innerHTML = '';
+
+    console.log('Generating', slides.length, 'slides');
 
     slides.forEach((slide, index) => {
         const slideDiv = document.createElement('div');
@@ -114,10 +129,11 @@ function generateSlides() {
             slideDiv.classList.add('photo-slide');
             slideDiv.innerHTML = `
         <div class="photo-frame">
-          <img src="${slide.src}" alt="${slide.caption}" onerror="this.src='https://via.placeholder.com/600x400/ec4899/ffffff?text=Add+Your+Photo'">
+          <img src="${slide.src}" alt="${slide.caption}" onerror="console.error('Failed to load image:', this.src); this.src='https://via.placeholder.com/600x400/ec4899/ffffff?text=Photo+${index + 1}'">
           <p class="photo-caption">${slide.caption}</p>
         </div>
       `;
+            console.log('Created photo slide', index + 1, 'with src:', slide.src);
         } else if (slide.type === 'text') {
             slideDiv.classList.add('text-slide');
             slideDiv.innerHTML = `
@@ -130,6 +146,8 @@ function generateSlides() {
 
         slideContainer.appendChild(slideDiv);
     });
+
+    console.log('All slides generated. Total in DOM:', document.querySelectorAll('.slide').length);
 }
 
 // Start the experience
